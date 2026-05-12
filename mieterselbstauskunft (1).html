@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mieterselbstauskunft</title>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    // ─────────────────────────────────────────────────────────
+    // 🔧 SETUP: Replace with your own Firebase project config.
+    //    1. Go to https://console.firebase.google.com
+    //    2. Create a project → Add web app → copy config below
+    //    3. In Realtime Database rules set read/write to true (for dev)
+    // ─────────────────────────────────────────────────────────
+    const firebaseConfig = {
+      apiKey: "REPLACE_WITH_YOUR_API_KEY",
+      authDomain: "REPLACE.firebaseapp.com",
+      databaseURL: "https://REPLACE-default-rtdb.firebaseio.com",
+      projectId: "REPLACE",
+      storageBucket: "REPLACE.appspot.com",
+      messagingSenderId: "000000000000",
+      appId: "REPLACE"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+
+    // ── Room ID from URL hash, e.g. yoursite.html#room123 ──
+    function getRoomId() {
+      let id = location.hash.replace('#','').trim();
+      if (!id) {
+        id = Math.random().toString(36).slice(2,9);
+        location.hash = id;
+      }
+      return id;
+    }
+
+    const ROOM = getRoomId();
+    const formRef = ref(db, 'forms/' + ROOM);
+
+    let suppressSync = false; // prevent echo loops
+
+    // ── Collect all form values into a plain object ──
+    function collectValues() {
+      const data = {};
+      document.querySelectorAll('[data-field]').forEach(el => {
+        const key = el.dataset.field;
+        if (el.type === 'radio') {
+          if (el.checked) data[key] = el.value;
+        } else if (el.classList.contains('decl-dot')) {
+          data[key] = el.classList.contains('checked') ? '1' : '0';
+        } else {
+          data[key] = el.value;
+        }
+      });
+      return data;
+    }
+
+    // ── Apply a saved object back to the form ──
+    function applyValues(data) {
+      suppressSync = true;
+      document.querySelectorAll('[data-field]').forEach(el => {
+        const key = el.dataset.field;
+        if (!(key in data)) return;
+        if (el.type === 'radio') {
+          el.checked = (el.value === data[key]);
+        } else if (el.classList.contains('decl-dot')) {
+          el.classList.toggle('checked', data[key] === '1');
+        } else {
+          el.value = data[key];
+        }
+      });
+      suppressSync = false;
+    }
+
+    // ── Push changes to Firebase (debounced 300ms) ──
+    let debounceTimer;
+    function pushChange() {
+      if (suppressSync) return;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        set(formRef, collectValues());
+      }, 300);
+    }
+
+    // ── Listen for remote changes ──
+    onValue(formRef, (snapshot) => {
+      if (snapshot.exists()) applyValues(snapshot.val());
+    });
+
+    // ── Wire all inputs after DOM is ready ──
+    window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('[data-field]').forEach(el => {
+        const evt = (el.type === 'radio' || el.classList.contains('decl-dot')) ? 'change' : 'input';
+        el.addEventListener(evt, pushChange);
+        // Decl-dot click
+        if (el.classList.contains('decl-dot')) {
+          el.addEventListener('click', () => { el.classList.toggle('checked'); pushChange(); });
+        }
+      });
+
+      // Share link button
+      document.getElementById('copyLink').addEventListener('click', () => {
+        navigator.clipboard.writeText(location.href).then(() => {
+          const btn = document.getElementById('copyLink');
+          btn.textContent = '✅ Copied!';
+          setTimeout(() => btn.textContent = '🔗 Share Link', 2000);
+        });
+      });
+
+      // Clear button
+      document.getElementById('btnClear').addEventListener('click', () => {
+        if (!confirm('Clear all entered values for everyone in this session?')) return;
+        set(formRef, {});
+        document.querySelectorAll('[data-field]').forEach(el => {
+          if (el.type === 'radio') {
+            el.checked = el.value === 'nein';
+          } else if (el.classList.contains('decl-dot')) {
+            el.classList.remove('checked');
+          } else {
+            el.value = '';
+          }
+        });
+      });
+
+      // Show room ID in toolbar
+      document.getElementById('roomId').textContent = 'Room: ' + ROOM;
+
+      // Load initial state
+      get(formRef).then(snap => { if (snap.exists()) applyValues(snap.val()); });
+    });
+  </script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .toolbar { display: none !important; }
+      .page { box-shadow: none; margin: 0; padding: 1.5cm 2cm; page-break-after: always; }
+      .page:last-child { page-break-after: auto; }
+      @page { margin: 0; size: A4; }
+      .question-en { display: none !important; }
+      input, textarea { border: none !important; background: transparent !important; outline: none !important; box-shadow: none !important; padding: 0 !important; font-family: inherit; font-size: inherit; color: #111 !important; }
+      .field-line { border-bottom: 1px solid #111 !important; }
+      input[type=radio] { display: none; }
+      .radio-dot { width: 13px; height: 13px; border: 1.5px solid #111; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+      .radio-dot.checked, input[type=radio]:checked ~ .radio-dot { background: #111; }
+      td input { width: 100%; }
+      .decl-dot { width: 13px; height: 13px; border: 1.5px solid #111; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+      .decl-dot.checked { background: #111; }
+    }
+
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 11pt;
+      background: #cecece;
+      padding: 20px;
+      line-height: 1.5;
+      color: #111;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      max-width: 210mm;
+      margin: 0 auto 12px auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: #1e1e1e;
+      color: #eee;
+      padding: 10px 16px;
+      border-radius: 7px;
+      font-family: sans-serif;
+      font-size: 12px;
+    }
+    .status-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: #f59e0b; display: inline-block; flex-shrink: 0;
+      transition: background 0.4s;
+    }
+    .status-dot.online { background: #22c55e; }
+    #roomId { color: #aaa; font-size: 11px; font-family: monospace; }
+    .toolbar-right { display: flex; gap: 8px; margin-left: auto; align-items: center; }
+    .btn-tool {
+      background: transparent; color: #ccc; border: 1px solid #555;
+      padding: 6px 13px; border-radius: 4px; cursor: pointer;
+      font-size: 11px; font-family: sans-serif;
+    }
+    .btn-tool:hover { background: #333; color: #fff; }
+    .btn-primary-tool {
+      background: #01696f; color: white; border: none;
+      padding: 6px 16px; border-radius: 4px; cursor: pointer;
+      font-size: 12px; font-family: sans-serif; font-weight: bold;
+    }
+    .btn-primary-tool:hover { background: #0c4e54; }
+
+    /* ── Pages ── */
+    .page {
+      background: white;
+      max-width: 210mm;
+      margin: 0 auto 30px auto;
+      padding: 2cm 2.2cm;
+      box-shadow: 0 2px 18px rgba(0,0,0,0.15);
+    }
+
+    h1 { font-size: 14pt; font-weight: bold; text-decoration: underline; margin-bottom: 18px; }
+
+    .field-row { display: flex; align-items: flex-end; margin-bottom: 12px; gap: 6px; }
+    .field-label { white-space: nowrap; font-size: 11pt; }
+    .field-line { flex: 1; border-bottom: 1px solid #111; min-width: 80px; height: 22px; position: relative; }
+    .field-line input {
+      position: absolute; bottom: 1px; left: 0;
+      width: 100%; border: none; outline: none;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 10.5pt; background: transparent; color: #111; padding: 0 2px;
+    }
+    .field-line input::placeholder { color: #aaa; font-style: italic; font-size: 9pt; }
+
+    p { margin-bottom: 10px; font-size: 11pt; }
+
+    /* ── Table ── */
+    .info-table { width: 100%; border-collapse: collapse; margin: 14px 0 18px 0; font-size: 10pt; }
+    .info-table th, .info-table td { border: 1px solid #111; padding: 3px 6px; vertical-align: middle; }
+    .info-table th { font-weight: bold; text-align: center; }
+    .info-table td:first-child { min-width: 145px; }
+    .info-table td:not(:first-child) { min-width: 120px; height: 22px; }
+    .info-table td input {
+      width: 100%; border: none; outline: none;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 10pt; background: transparent; color: #111;
+    }
+    .info-table td input::placeholder { color: #bbb; font-style: italic; font-size: 9pt; }
+
+    .person-block { margin-bottom: 20px; }
+    .person-title { font-weight: bold; text-decoration: underline; margin-bottom: 6px; }
+
+    .question-block { margin-bottom: 16px; }
+    .question-text { margin-bottom: 3px; font-size: 11pt; }
+    .question-en { font-size: 9pt; color: #888; font-style: italic; margin-bottom: 5px; font-family: sans-serif; }
+
+    /* ── Yes/No ── */
+    .yesno-row { display: flex; gap: 40px; margin-bottom: 4px; margin-left: 14px; }
+    .yesno-option { display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 11pt; }
+    .yesno-option input[type=radio] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .radio-dot {
+      width: 13px; height: 13px; border: 1.5px solid #111; border-radius: 50%;
+      display: inline-block; flex-shrink: 0; transition: background 0.15s;
+    }
+    .yesno-option input[type=radio]:checked + .radio-dot { background: #111; }
+
+    /* ── Follow-up ── */
+    .follow-up { margin-top: 5px; display: flex; align-items: flex-end; gap: 4px; }
+    .follow-up-line { flex: 1; border-bottom: 1px solid #111; height: 22px; position: relative; }
+    .follow-up-line input {
+      position: absolute; bottom: 1px; left: 0; width: 100%;
+      border: none; outline: none;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 10pt; background: transparent; color: #111;
+    }
+    .follow-up-line input::placeholder { color: #bbb; font-style: italic; font-size: 9pt; }
+    .follow-up-second-line { width: 60%; border-bottom: 1px solid #111; height: 18px; margin-top: 6px; }
+
+    /* ── Declarations ── */
+    .declarations { margin: 18px 0 14px 0; }
+    .declaration-item { display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start; }
+    .decl-dot {
+      width: 13px; height: 13px; border: 1.5px solid #111; border-radius: 50%;
+      display: inline-block; flex-shrink: 0; margin-top: 3px;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .decl-dot:hover { background: #666; }
+    .decl-dot.checked { background: #111; }
+
+    /* ── Signature ── */
+    .signature-row { display: flex; gap: 24px; margin-top: 32px; align-items: flex-end; }
+    .sig-field { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .sig-line { border-bottom: 1px solid #111; height: 24px; position: relative; }
+    .sig-line input {
+      position: absolute; bottom: 1px; left: 0; width: 100%;
+      border: none; outline: none;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 10pt; background: transparent; color: #111;
+    }
+    .sig-label { font-size: 9pt; }
+
+    .section-divider { border: none; border-top: 1px solid #555; margin: 18px 0 14px 0; }
+    .note-text { font-size: 10pt; margin-bottom: 12px; }
+    .interested-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 4px; margin-bottom: 12px; }
+
+    /* ── Setup warning banner ── */
+    #setupBanner {
+      max-width: 210mm; margin: 0 auto 14px auto;
+      background: #fef3c7; border: 1.5px solid #f59e0b;
+      border-radius: 6px; padding: 12px 16px;
+      font-family: sans-serif; font-size: 12px; color: #92400e;
+      display: none;
+    }
+    #setupBanner a { color: #01696f; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<!-- Setup warning shown if config not replaced -->
+<div id="setupBanner">
+  ⚠️ <strong>Firebase not configured yet.</strong> Real-time sync is disabled.
+  <a href="https://console.firebase.google.com" target="_blank" rel="noopener">Create a free Firebase project</a>,
+  replace the config in the &lt;script&gt; block, then re-publish. Until then, the form works locally but changes won't sync between users.
+</div>
+
+<div class="toolbar">
+  <span class="status-dot" id="statusDot"></span>
+  <span id="roomId">Room: —</span>
+  <span style="color:#666; font-size:10px;">|</span>
+  <div class="toolbar-right">
+    <button class="btn-tool" id="copyLink">🔗 Share Link</button>
+    <button class="btn-tool" id="btnClear">Clear All</button>
+    <button class="btn-primary-tool" onclick="window.print()">🖨 Print / Save PDF</button>
+  </div>
+</div>
+
+<!-- PAGE 1 -->
+<div class="page">
+  <h1>Mieterselbstauskunft</h1>
+
+  <div class="field-row">
+    <span class="field-label">Name, Vorname:</span>
+    <div class="field-line"><input type="text" data-field="hdr_name1" placeholder="Last name, First name (Tenant 1)"></div>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Name, Vorname:</span>
+    <div class="field-line"><input type="text" data-field="hdr_name2" placeholder="Last name, First name (Tenant 2)"></div>
+  </div>
+
+  <p style="margin-top:14px; margin-bottom:8px;">
+    Ich/Wir &nbsp;&nbsp; sind &nbsp;&nbsp; an &nbsp;&nbsp; der &nbsp;&nbsp; Anmietung &nbsp;&nbsp; des &nbsp;&nbsp; Objektes
+  </p>
+  <div class="interested-row">
+    <div class="field-line" style="flex:2; min-width:200px;"><input type="text" data-field="property_address" placeholder="Property address"></div>
+    <span class="field-label">zum</span>
+    <div class="field-line" style="flex:1; min-width:100px;"><input type="text" data-field="move_in_date" placeholder="Move-in date"></div>
+    <span class="field-label">interessiert.</span>
+  </div>
+
+  <p>Die nachfolgenden Informationen teile/n ich/wir dem Vermieter auf Grundlage einer freiwilligen Selbstauskunft im Rahmen des Anmietungswunsches mit:</p>
+
+  <table class="info-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Mietinteressent/in 1</th>
+        <th>Mietinteressent/in 2</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Name, Vorname</td><td><input type="text" data-field="t1_name" placeholder="Full name"></td><td><input type="text" data-field="t2_name" placeholder="Full name"></td></tr>
+      <tr><td>Geburtsdatum,-ort</td><td><input type="text" data-field="t1_dob" placeholder="DD.MM.YYYY, City"></td><td><input type="text" data-field="t2_dob" placeholder="DD.MM.YYYY, City"></td></tr>
+      <tr><td>Familienstand</td><td><input type="text" data-field="t1_status" placeholder="e.g. Single / Married"></td><td><input type="text" data-field="t2_status" placeholder="e.g. Single / Married"></td></tr>
+      <tr><td>Aktuelle Anschrift</td><td><input type="text" data-field="t1_addr" placeholder="Current address"></td><td><input type="text" data-field="t2_addr" placeholder="Current address"></td></tr>
+      <tr><td>Telefon</td><td><input type="text" data-field="t1_phone" placeholder="Phone number"></td><td><input type="text" data-field="t2_phone" placeholder="Phone number"></td></tr>
+      <tr><td>Email</td><td><input type="text" data-field="t1_email" placeholder="Email address"></td><td><input type="text" data-field="t2_email" placeholder="Email address"></td></tr>
+      <tr><td>Aktueller Beruf</td><td><input type="text" data-field="t1_job" placeholder="Current occupation"></td><td><input type="text" data-field="t2_job" placeholder="Current occupation"></td></tr>
+      <tr><td>Derzeitiger Arbeitgeber</td><td><input type="text" data-field="t1_employer" placeholder="Employer name"></td><td><input type="text" data-field="t2_employer" placeholder="Employer name"></td></tr>
+      <tr><td>Beschäftigt seit</td><td><input type="text" data-field="t1_since" placeholder="Employed since (month/year)"></td><td><input type="text" data-field="t2_since" placeholder="Employed since (month/year)"></td></tr>
+      <tr><td>Monatliches Nettoeinkommen</td><td><input type="text" data-field="t1_income" placeholder="Net monthly income (€)"></td><td><input type="text" data-field="t2_income" placeholder="Net monthly income (€)"></td></tr>
+    </tbody>
+  </table>
+
+  <p>Neben mir/uns werden die nachfolgenden Personen das Objekt beziehen:</p>
+
+  <div class="person-block">
+    <div class="person-title">Person 1</div>
+    <div class="field-row"><span class="field-label">Name, Vorname:</span><div class="field-line"><input type="text" data-field="p1_name" placeholder="Last name, First name"></div></div>
+    <div class="field-row"><span class="field-label">Geburtsdatum, -ort:</span><div class="field-line"><input type="text" data-field="p1_dob" placeholder="DD.MM.YYYY, City"></div></div>
+    <div class="field-row"><span class="field-label">Aktuelle Anschrift:</span><div class="field-line"><input type="text" data-field="p1_addr" placeholder="Current address"></div></div>
+  </div>
+
+  <div class="person-block">
+    <div class="person-title">Person 2</div>
+    <div class="field-row"><span class="field-label">Name, Vorname:</span><div class="field-line"><input type="text" data-field="p2_name" placeholder="Last name, First name"></div></div>
+    <div class="field-row"><span class="field-label">Geburtsdatum, -ort:</span><div class="field-line"><input type="text" data-field="p2_dob" placeholder="DD.MM.YYYY, City"></div></div>
+    <div class="field-row"><span class="field-label">Aktuelle Anschrift:</span><div class="field-line"><input type="text" data-field="p2_addr" placeholder="Current address"></div></div>
+  </div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page">
+  <div class="person-block">
+    <div class="person-title">Person 3</div>
+    <div class="field-row"><span class="field-label">Name, Vorname:</span><div class="field-line"><input type="text" data-field="p3_name" placeholder="Last name, First name"></div></div>
+    <div class="field-row"><span class="field-label">Geburtsdatum, -ort:</span><div class="field-line"><input type="text" data-field="p3_dob" placeholder="DD.MM.YYYY, City"></div></div>
+    <div class="field-row"><span class="field-label">Aktuelle Anschrift:</span><div class="field-line"><input type="text" data-field="p3_addr" placeholder="Current address"></div></div>
+  </div>
+
+  <hr class="section-divider">
+
+  <div class="question-block">
+    <div class="question-text">Bestehen Mietrückstände aus vorherigen Mietverhältnissen?</div>
+    <div class="question-en">Are there any outstanding rent arrears from previous tenancies?</div>
+    <div class="yesno-row">
+      <label class="yesno-option"><input type="radio" data-field="q1" name="q1" value="ja"><span class="radio-dot"></span>ja</label>
+      <label class="yesno-option"><input type="radio" data-field="q1" name="q1" value="nein" checked><span class="radio-dot"></span>nein</label>
+    </div>
+  </div>
+
+  <div class="question-block">
+    <div class="question-text">Haben Sie Vorstrafen oder lag in den letzten 5 Jahren ein Haftbefehl im Rahmen eines Mietverhältnisses gegen Sie vor:</div>
+    <div class="question-en">Do you have a criminal record or has an arrest warrant related to a tenancy been issued against you in the last 5 years?</div>
+    <div class="yesno-row">
+      <label class="yesno-option"><input type="radio" data-field="q2" name="q2" value="ja"><span class="radio-dot"></span>ja</label>
+      <label class="yesno-option"><input type="radio" data-field="q2" name="q2" value="nein" checked><span class="radio-dot"></span>nein</label>
+    </div>
+    <div class="follow-up"><span>Wenn ja,&thinsp;wann?</span><div class="follow-up-line"><input type="text" data-field="q2_detail" placeholder="If yes, when?"></div></div>
+    <div class="follow-up-second-line"></div>
+  </div>
+
+  <div class="question-block">
+    <div class="question-text">Beziehen Sie Sozialleistungen zur Zahlung der Miete und/oder Kaution?</div>
+    <div class="question-en">Do you receive social benefits to cover rent and/or the security deposit?</div>
+    <div class="yesno-row">
+      <label class="yesno-option"><input type="radio" data-field="q3" name="q3" value="ja"><span class="radio-dot"></span>ja</label>
+      <label class="yesno-option"><input type="radio" data-field="q3" name="q3" value="nein" checked><span class="radio-dot"></span>nein</label>
+    </div>
+    <div class="follow-up"><span>Wenn ja,&thinsp;welche und in welchem Umfang?</span><div class="follow-up-line"><input type="text" data-field="q3_detail" placeholder="If yes, which and to what extent?"></div></div>
+  </div>
+
+  <div class="question-block">
+    <div class="question-text">Beabsichtigen Sie das Objekt gewerblich zu nutzen?</div>
+    <div class="question-en">Do you intend to use the property for commercial purposes?</div>
+    <div class="yesno-row">
+      <label class="yesno-option"><input type="radio" data-field="q4" name="q4" value="ja"><span class="radio-dot"></span>ja</label>
+      <label class="yesno-option"><input type="radio" data-field="q4" name="q4" value="nein" checked><span class="radio-dot"></span>nein</label>
+    </div>
+    <div class="follow-up"><span>Wenn ja,&thinsp;zu welchem Zweck?</span><div class="follow-up-line"><input type="text" data-field="q4_detail" placeholder="If yes, for what purpose?"></div></div>
+  </div>
+
+  <div class="question-block">
+    <div class="question-text">Beabsichtigen Sie Tiere in dem Objekt zu halten?</div>
+    <div class="question-en">Do you intend to keep animals in the property?</div>
+    <div class="yesno-row">
+      <label class="yesno-option"><input type="radio" data-field="q5" name="q5" value="ja"><span class="radio-dot"></span>ja</label>
+      <label class="yesno-option"><input type="radio" data-field="q5" name="q5" value="nein" checked><span class="radio-dot"></span>nein</label>
+    </div>
+    <div class="follow-up"><span>Wenn ja,&thinsp;welche?</span><div class="follow-up-line"><input type="text" data-field="q5_detail" placeholder="If yes, which ones?"></div></div>
+    <div class="follow-up-second-line"></div>
+  </div>
+
+  <div class="question-block">
+    <div class="question-text">Wurden in den letzten 5 Jahren Räumungsklagen gegen Sie erhoben?</div>
+    <div class="question-en">Have any eviction proceedings been filed against you in the last 5 years?</div>
+    <div class="yesno-row">
+      <label class="yesno-option"><input type="radio" data-field="q6" name="q6" value="ja"><span class="radio-dot"></span>ja</label>
+      <label class="yesno-option"><input type="radio" data-field="q6" name="q6" value="nein" checked><span class="radio-dot"></span>nein</label>
+    </div>
+    <div class="follow-up"><span>Wenn ja,&thinsp;wann?</span><div class="follow-up-line"><input type="text" data-field="q6_detail" placeholder="If yes, when?"></div></div>
+    <div class="follow-up-second-line"></div>
+  </div>
+
+  <div class="question-block">
+    <div class="question-text">Wurden in den letzten 5 Jahren Zwangsvollstreckungen im Zusammenhang mit Mietverhältnissen gegen Sie eingeleitet?</div>
+    <div class="question-en">Have any forced evictions in connection with a tenancy been initiated against you in the last 5 years?</div>
+    <div class="yesno-row">
+      <label class="yesno-option"><input type="radio" data-field="q7" name="q7" value="ja"><span class="radio-dot"></span>ja</label>
+      <label class="yesno-option"><input type="radio" data-field="q7" name="q7" value="nein" checked><span class="radio-dot"></span>nein</label>
+    </div>
+    <div class="follow-up"><span>Wenn ja,&thinsp;wann?</span><div class="follow-up-line"><input type="text" data-field="q7_detail" placeholder="If yes, when?"></div></div>
+    <div class="follow-up-second-line"></div>
+  </div>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page">
+
+  <div class="question-block">
+    <div class="question-text">Wurde in den letzten 5 Jahren ein Insolvenzverfahren gegen Sie eingeleitet</div>
+    <div class="question-en">Have any insolvency proceedings been initiated against you in the last 5 years?</div>
+    <div class="yesno-row">
+      <label class="yesno-option"><input type="radio" data-field="q8" name="q8" value="ja"><span class="radio-dot"></span>ja</label>
+      <label class="yesno-option"><input type="radio" data-field="q8" name="q8" value="nein" checked><span class="radio-dot"></span>nein</label>
+    </div>
+    <div class="follow-up"><span>Wenn ja,&thinsp;wann?</span><div class="follow-up-line"><input type="text" data-field="q8_detail" placeholder="If yes, when?"></div></div>
+    <div class="follow-up-second-line"></div>
+  </div>
+
+  <div class="question-block" style="margin-top:18px;">
+    <div class="question-text">Haben Sie eine Haftpflichtversicherung und Hausratversicherung?</div>
+    <div class="question-en">Do you have personal liability insurance and household contents insurance?</div>
+    <div class="yesno-row">
+      <label class="yesno-option"><input type="radio" data-field="q9" name="q9" value="ja"><span class="radio-dot"></span>ja</label>
+      <label class="yesno-option"><input type="radio" data-field="q9" name="q9" value="nein" checked><span class="radio-dot"></span>nein</label>
+    </div>
+    <div class="follow-up"><span>Wenn ja,&thinsp;welche?</span><div class="follow-up-line"><input type="text" data-field="q9_detail" placeholder="If yes, which ones?"></div></div>
+    <div class="follow-up-second-line"></div>
+  </div>
+
+  <hr class="section-divider">
+
+  <div class="declarations">
+    <div class="declaration-item">
+      <span class="decl-dot" data-field="d1" title="Click to mark"></span>
+      <span>Ich/Wir erkläre/n, dass ich/wir in der Lage bin/sind sämtliche Verpflichtungen des Mietvertrags zu erfüllen.</span>
+    </div>
+    <div class="declaration-item">
+      <span class="decl-dot" data-field="d2" title="Click to mark"></span>
+      <span>Ich/Wir erkläre/n, dass sämtliche vorgenannten Angaben wahrheitsgemäß und vollständig von mir/uns getätigt wurden.</span>
+    </div>
+    <div class="declaration-item">
+      <span class="decl-dot" data-field="d3" title="Click to mark"></span>
+      <span>Ich/Wir habe/n den Unterlagen eine aktuelle Schufa Selbstauskunft beigefügt.</span>
+    </div>
+    <div class="declaration-item">
+      <span class="decl-dot" data-field="d4" title="Click to mark"></span>
+      <span>Ich/Wir habe/n den Unterlagen die letzten drei Lohn-/Gehaltsabrechnungen beigefügt.</span>
+    </div>
+    <div class="declaration-item">
+      <span class="decl-dot" data-field="d5" title="Click to mark"></span>
+      <span>Ich/Wir habe/n den Unterlagen eine Kopie des/der Personalausweise/s.</span>
+    </div>
+    <div class="declaration-item">
+      <span class="decl-dot" data-field="d6" title="Click to mark"></span>
+      <span>&nbsp;</span>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <p class="note-text">Bei falschen Angaben, behält der Vermieter sich nach Abschluss eines Mietvertrages eine Aufhebung oder fristlose Kündigung des Mietvertrages vor.</p>
+  <p class="note-text">Sofern diese Auskünfte vom Vermieter nicht mehr benötigt werden, wird dieser die Informationen gemäß Bundesdatenschutzgesetz umgehend vernichten (z.B. nach Beendigung des Mietverhältnisses).</p>
+
+  <div class="signature-row">
+    <div class="sig-field">
+      <div class="sig-line"><input type="text" data-field="sig_place_date" placeholder="City, Date"></div>
+      <div class="sig-label">Ort, Datum</div>
+    </div>
+    <div class="sig-field">
+      <div class="sig-line"></div>
+      <div class="sig-label">Unterschrift Mietinteressent/in 1</div>
+    </div>
+    <div class="sig-field">
+      <div class="sig-line"></div>
+      <div class="sig-label">Unterschrift Mietinteressent/in 2</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Show setup banner if config not replaced
+  window.addEventListener('DOMContentLoaded', () => {
+    const scripts = document.querySelectorAll('script[type=module]');
+    // Check if page loaded without Firebase (config placeholder still present)
+    // We detect this by checking if roomId stayed at "—" after 2 seconds
+    setTimeout(() => {
+      if (document.getElementById('roomId').textContent === 'Room: —') {
+        document.getElementById('setupBanner').style.display = 'block';
+        document.getElementById('statusDot').style.background = '#ef4444';
+      } else {
+        document.getElementById('statusDot').classList.add('online');
+      }
+    }, 2500);
+  });
+</script>
+</body>
+</html>
