@@ -157,22 +157,53 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     @media print {
-      body { background: white; padding: 0; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { background: white !important; padding: 0 !important; font-size: 11pt !important; }
       .toolbar { display: none !important; }
-      .page { box-shadow: none; margin: 0; padding: 1.5cm 2cm; page-break-after: always; }
-      .page:last-child { page-break-after: auto; }
-      @page { margin: 0; size: A4; }
-      .question-en { display: none !important; }
       #setupBanner { display: none !important; }
+      .question-en { display: none !important; }
       input::placeholder, textarea::placeholder { color: transparent !important; }
-      input, textarea { border: none !important; background: transparent !important; outline: none !important; box-shadow: none !important; padding: 0 !important; font-family: inherit; font-size: inherit; color: #111 !important; }
-      .field-line { border-bottom: 1px solid #111 !important; }
-      input[type=radio] { display: none; }
+
+      /* A4 page layout */
+      @page { margin: 0; size: A4 portrait; }
+      .page {
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 1.5cm 2cm !important;
+        max-width: 100% !important;
+        width: 210mm !important;
+        page-break-after: always;
+        border-radius: 0 !important;
+      }
+      .page:last-child { page-break-after: auto; }
+
+      /* Reset responsive layout back to form layout */
+      .field-row { display: flex !important; align-items: flex-end !important; margin-bottom: 10px !important; }
+      .field-line { border-bottom: 1px solid #111 !important; border-radius: 0 !important; }
+      .interested-row { display: flex !important; flex-wrap: wrap !important; align-items: flex-end !important; }
+      .yesno-row { display: flex !important; flex-direction: row !important; gap: 40px !important; }
+      .follow-up { display: flex !important; align-items: flex-end !important; }
+      .signature-row { display: flex !important; gap: 24px !important; }
+      .info-table { display: table !important; }
+      .info-table thead { display: table-header-group !important; }
+      .info-table tbody { display: table-row-group !important; }
+      .info-table tr { display: table-row !important; }
+      .info-table td, .info-table th { display: table-cell !important; }
+
+      /* Clean up inputs */
+      input, textarea {
+        border: none !important; background: transparent !important;
+        outline: none !important; box-shadow: none !important;
+        padding: 0 !important; font-family: inherit !important;
+        font-size: inherit !important; color: #111 !important;
+        width: 100% !important;
+      }
+      input[type=radio] { display: none !important; }
       .radio-dot { width: 13px; height: 13px; border: 1.5px solid #111; border-radius: 50%; display: inline-block; flex-shrink: 0; }
-      .radio-dot.checked, input[type=radio]:checked ~ .radio-dot { background: #111; }
-      td input { width: 100%; }
+      .radio-dot.checked, input[type=radio]:checked ~ .radio-dot { background: #111 !important; }
       .decl-dot { width: 13px; height: 13px; border: 1.5px solid #111; border-radius: 50%; display: inline-block; flex-shrink: 0; }
-      .decl-dot.checked { background: #111; }
+      .decl-dot.checked { background: #111 !important; }
+      td input { width: 100% !important; }
     }
 
     body {
@@ -322,6 +353,105 @@
       display: none;
     }
     #setupBanner a { color: #01696f; font-weight: bold; }
+
+    /* ── RESPONSIVE SCREEN STYLES ── */
+    @media screen {
+      body { padding: 12px; }
+
+      .page {
+        padding: clamp(16px, 4vw, 2cm);
+        margin-bottom: 20px;
+      }
+
+      /* Mobile: stack field rows vertically */
+      @media (max-width: 600px) {
+        body { padding: 8px; font-size: 10pt; }
+
+        h1 { font-size: 13pt; margin-bottom: 14px; }
+
+        .field-row {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 2px;
+        }
+        .field-label { font-size: 10pt; color: #555; }
+        .field-line {
+          width: 100%;
+          flex: none;
+          border: none;
+          border-bottom: 1.5px solid #aaa;
+          border-radius: 0;
+          height: 30px;
+          background: #fafafa;
+        }
+        .field-line input {
+          font-size: 11pt;
+          padding: 0 4px;
+          height: 100%;
+        }
+
+        .interested-row {
+          flex-direction: column;
+          gap: 8px;
+        }
+        .interested-row .field-line { width: 100% !important; min-width: unset !important; }
+
+        /* Table: convert to card layout on small screens */
+        .info-table, .info-table thead, .info-table tbody,
+        .info-table th, .info-table td, .info-table tr {
+          display: block;
+        }
+        .info-table thead { display: none; }
+        .info-table tr {
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          margin-bottom: 8px;
+          padding: 8px;
+          background: #fafafa;
+        }
+        .info-table td {
+          border: none;
+          padding: 4px 0;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          font-size: 10pt;
+        }
+        .info-table td::before {
+          content: attr(data-label);
+          font-size: 9pt;
+          color: #888;
+          font-style: italic;
+        }
+        .info-table td input {
+          border-bottom: 1px solid #ccc;
+          padding: 2px 0;
+          font-size: 11pt;
+          background: transparent;
+        }
+
+        /* Yes/No layout */
+        .yesno-row { gap: 24px; margin-left: 0; }
+
+        /* Follow-up */
+        .follow-up { flex-direction: column; align-items: flex-start; gap: 4px; }
+        .follow-up-line { width: 100%; }
+
+        /* Signature */
+        .signature-row { flex-direction: column; gap: 20px; }
+        .sig-field { width: 100%; }
+
+        /* Person blocks */
+        .person-title { font-size: 11pt; }
+      }
+
+      /* Tablet: slightly tighter */
+      @media (min-width: 601px) and (max-width: 860px) {
+        .info-table { font-size: 9pt; }
+        .info-table td, .info-table th { padding: 3px 4px; }
+        .field-line input { font-size: 10pt; }
+      }
+    }
   </style>
 </head>
 <body>
@@ -378,16 +508,16 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td>Name, Vorname</td><td><input type="text" data-field="t1_name" placeholder="Full name"></td><td><input type="text" data-field="t2_name" placeholder="Full name"></td></tr>
-      <tr><td>Geburtsdatum,-ort</td><td><input type="text" data-field="t1_dob" placeholder="DD.MM.YYYY, City"></td><td><input type="text" data-field="t2_dob" placeholder="DD.MM.YYYY, City"></td></tr>
-      <tr><td>Familienstand</td><td><input type="text" data-field="t1_status" placeholder="e.g. Single / Married"></td><td><input type="text" data-field="t2_status" placeholder="e.g. Single / Married"></td></tr>
-      <tr><td>Aktuelle Anschrift</td><td><input type="text" data-field="t1_addr" placeholder="Current address"></td><td><input type="text" data-field="t2_addr" placeholder="Current address"></td></tr>
-      <tr><td>Telefon</td><td><input type="text" data-field="t1_phone" placeholder="Phone number"></td><td><input type="text" data-field="t2_phone" placeholder="Phone number"></td></tr>
-      <tr><td>Email</td><td><input type="text" data-field="t1_email" placeholder="Email address"></td><td><input type="text" data-field="t2_email" placeholder="Email address"></td></tr>
-      <tr><td>Aktueller Beruf</td><td><input type="text" data-field="t1_job" placeholder="Current occupation"></td><td><input type="text" data-field="t2_job" placeholder="Current occupation"></td></tr>
-      <tr><td>Derzeitiger Arbeitgeber</td><td><input type="text" data-field="t1_employer" placeholder="Employer name"></td><td><input type="text" data-field="t2_employer" placeholder="Employer name"></td></tr>
-      <tr><td>Beschäftigt seit</td><td><input type="text" data-field="t1_since" placeholder="Employed since (month/year)"></td><td><input type="text" data-field="t2_since" placeholder="Employed since (month/year)"></td></tr>
-      <tr><td>Monatliches Nettoeinkommen</td><td><input type="text" data-field="t1_income" placeholder="Net monthly income (€)"></td><td><input type="text" data-field="t2_income" placeholder="Net monthly income (€)"></td></tr>
+      <tr><td>Name, Vorname</td><td data-label="Mietinteressent/in 1"><input type="text" data-field="t1_name" placeholder="Full name"></td><td data-label="Mietinteressent/in 2"><input type="text" data-field="t2_name" placeholder="Full name"></td></tr>
+      <tr><td>Geburtsdatum,-ort</td><td data-label="Mietinteressent/in 1"><input type="text" data-field="t1_dob" placeholder="DD.MM.YYYY, City"></td><td data-label="Mietinteressent/in 2"><input type="text" data-field="t2_dob" placeholder="DD.MM.YYYY, City"></td></tr>
+      <tr><td>Familienstand</td><td data-label="Mietinteressent/in 1"><input type="text" data-field="t1_status" placeholder="e.g. Single / Married"></td><td data-label="Mietinteressent/in 2"><input type="text" data-field="t2_status" placeholder="e.g. Single / Married"></td></tr>
+      <tr><td>Aktuelle Anschrift</td><td data-label="Mietinteressent/in 1"><input type="text" data-field="t1_addr" placeholder="Current address"></td><td data-label="Mietinteressent/in 2"><input type="text" data-field="t2_addr" placeholder="Current address"></td></tr>
+      <tr><td>Telefon</td><td data-label="Mietinteressent/in 1"><input type="text" data-field="t1_phone" placeholder="Phone number"></td><td data-label="Mietinteressent/in 2"><input type="text" data-field="t2_phone" placeholder="Phone number"></td></tr>
+      <tr><td>Email</td><td data-label="Mietinteressent/in 1"><input type="text" data-field="t1_email" placeholder="Email address"></td><td data-label="Mietinteressent/in 2"><input type="text" data-field="t2_email" placeholder="Email address"></td></tr>
+      <tr><td>Aktueller Beruf</td><td data-label="Mietinteressent/in 1"><input type="text" data-field="t1_job" placeholder="Current occupation"></td><td data-label="Mietinteressent/in 2"><input type="text" data-field="t2_job" placeholder="Current occupation"></td></tr>
+      <tr><td>Derzeitiger Arbeitgeber</td><td data-label="Mietinteressent/in 1"><input type="text" data-field="t1_employer" placeholder="Employer name"></td><td data-label="Mietinteressent/in 2"><input type="text" data-field="t2_employer" placeholder="Employer name"></td></tr>
+      <tr><td>Beschäftigt seit</td><td data-label="Mietinteressent/in 1"><input type="text" data-field="t1_since" placeholder="Employed since (month/year)"></td><td data-label="Mietinteressent/in 2"><input type="text" data-field="t2_since" placeholder="Employed since (month/year)"></td></tr>
+      <tr><td>Monatliches Nettoeinkommen</td><td data-label="Mietinteressent/in 1"><input type="text" data-field="t1_income" placeholder="Net monthly income (€)"></td><td data-label="Mietinteressent/in 2"><input type="text" data-field="t2_income" placeholder="Net monthly income (€)"></td></tr>
     </tbody>
   </table>
 
