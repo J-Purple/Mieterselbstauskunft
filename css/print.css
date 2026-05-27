@@ -206,8 +206,6 @@
     font-size: 10.5pt !important;
     color: #111 !important;
     padding: 0 2px !important;
-    height: auto !important;
-    min-height: unset !important;
     white-space: pre-wrap !important;
     word-break: break-word !important;
   }
@@ -221,7 +219,7 @@
   textarea::placeholder, input::placeholder { color: transparent !important; }
   
   .field-line, .follow-up-line, .sig-line {
-    min-height: 22px !important;
+    min-height: 22px;
   }
 
   /* Dots */
