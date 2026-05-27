@@ -89,13 +89,15 @@ window.addEventListener('formsLoaded', () => {
     });
   }
 
-  // Show room ID and make it clickable
+  // Show room ID and make the button clickable
   const roomIdEl = document.getElementById('roomId');
   if (roomIdEl) {
-    roomIdEl.textContent = 'Room: ' + window.ROOM + ' ✎';
-    roomIdEl.style.cursor = 'pointer';
-    roomIdEl.title = 'Click to change room';
-    roomIdEl.addEventListener('click', () => {
+    roomIdEl.textContent = 'Room: ' + window.ROOM;
+  }
+  
+  const btnChangeRoom = document.getElementById('btnChangeRoom');
+  if (btnChangeRoom) {
+    btnChangeRoom.addEventListener('click', () => {
       const newRoom = prompt('Enter room name to join:', window.ROOM);
       if (newRoom && newRoom.trim() !== '' && newRoom.trim() !== window.ROOM) {
         window.location.hash = newRoom.trim();
