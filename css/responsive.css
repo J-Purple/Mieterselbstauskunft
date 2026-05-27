@@ -282,6 +282,13 @@
 
 @media screen and (max-width: 600px) {
   .tab-btn { font-size: 11px; padding: 10px 8px; }
+  
+  /* Form B Property Info */
+  #formB .b-prop-row { flex-direction: column; align-items: flex-start; margin-bottom: 12px; gap: 4px; }
+  #formB .b-prop-row .b-prop-label { font-size: 10pt; color: #555; }
+  #formB .b-prop-row .b-prop-field { width: 100%; flex: none; }
+
+  /* Form B Main Table */
   #formB .b-table thead { display: none; }
   #formB .b-table, #formB .b-table tbody,
   #formB .b-table tr, #formB .b-table td { display: block; }
@@ -290,9 +297,40 @@
     margin-bottom: 10px; padding: 10px; background: #fafafa;
   }
   #formB .b-table td { border: none; padding: 4px 0; }
+  #formB .b-table td.lbl { display: none; } /* Hide the left-column label row on mobile */
   #formB .b-table td::before {
     content: attr(data-label);
     display: block; font-size: 9pt; color: #888; font-style: italic; margin-bottom: 4px;
   }
-  #formB .b-sig-row { flex-direction: column; gap: 20px; }
+  
+  /* Form B Household Table */
+  #formB .hh-table thead { display: none; }
+  #formB .hh-table, #formB .hh-table tbody, 
+  #formB .hh-table tr, #formB .hh-table td { display: block; }
+  #formB .hh-table tr {
+    border: 1px solid #e0e0e0; border-radius: 8px;
+    margin-bottom: 10px; padding: 10px; background: #fafafa;
+  }
+  #formB .hh-table td { border: none; padding: 4px 0; margin-bottom: 6px; border-bottom: 1px solid #eee; }
+  #formB .hh-table td:last-child { border-bottom: none; }
+  #formB .hh-table td:nth-child(1)::before { content: "Name:"; font-size: 9pt; color: #888; display: block; margin-bottom: 2px; }
+  #formB .hh-table td:nth-child(2)::before { content: "Vorname(n):"; font-size: 9pt; color: #888; display: block; margin-bottom: 2px; }
+  #formB .hh-table td:nth-child(3)::before { content: "Verwandtschaftsgrad:"; font-size: 9pt; color: #888; display: block; margin-bottom: 2px; }
+  #formB .hh-table td:nth-child(4)::before { content: "Geburtsdatum:"; font-size: 9pt; color: #888; display: block; margin-bottom: 2px; }
+  #formB .hh-table td:nth-child(5)::before { content: "Eigenes Einkommen (netto):"; font-size: 9pt; color: #888; display: block; margin-bottom: 2px; }
+
+  /* Form B Declarations & Inputs */
+  #formB .chk-item { flex-direction: row; flex-wrap: wrap; }
+  #formB .b-inline { width: 100%; display: block; margin-top: 4px; margin-bottom: 6px; }
+  #formB .chk-sub { margin-left: 0; margin-top: 8px; }
+  
+  /* Form B Payment Line */
+  #formB .pay-line { display: flex; flex-direction: column; width: 100%; gap: 6px; }
+  #formB .pay-field { width: 100%; display: block; margin-top: 2px; }
+
+  /* Form B Signature */
+  #formB .b-city-date-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+  #formB .b-city-field, #formB .b-date-field { width: 100%; flex: none; }
+  #formB .b-city-date-row span { display: none; } /* hide ", den" */
+  #formB .b-sig-pair { flex-direction: column; gap: 30px; }
 }
