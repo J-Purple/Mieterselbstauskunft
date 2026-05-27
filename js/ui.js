@@ -20,7 +20,7 @@ window.switchTab = function (id, btn) {
   if (btn) btn.classList.add('active');
 };
 
-window.addEventListener('formsLoaded', () => {
+document.addEventListener('formsLoaded', () => {
   // Input wiring
   document.querySelectorAll('[data-field]').forEach(el => {
     const evt = (el.type === 'radio' || el.classList.contains('decl-dot') || el.classList.contains('chk-box')) ? 'change' : 'input';
