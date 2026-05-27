@@ -6,6 +6,7 @@
   body {
     background: white !important;
     padding: 0 !important;
+    margin: 0 !important;
     font-family: 'Times New Roman', Times, serif !important;
     font-size: 11pt !important;
     line-height: 1.5 !important;
@@ -24,12 +25,12 @@
     display: block !important;
     box-shadow: none !important;
     margin: 0 !important;
-    padding: 1.5cm 2cm !important;
+    padding: 1.0cm 1.5cm !important;
     max-width: 210mm !important;
     width: 210mm !important;
     page-break-after: always;
     border-radius: 0 !important;
-    background: white !important;
+    background: transparent !important;
   }
   .page:last-child { page-break-after: auto !important; }
 
@@ -161,6 +162,7 @@
     gap: 10px !important;
     margin-bottom: 8px !important;
     align-items: flex-start !important;
+    page-break-inside: avoid !important;
   }
 
   /* Signature */
@@ -240,6 +242,7 @@
   .decl-dot.checked { background: #111 !important; }
 
   /* Form B specific print overrides */
+  #formB .chk-item, #formB .question-block { page-break-inside: avoid !important; }
   #formB .chk-box { background: white !important; }
   #formB .chk-box.checked { background: #111 !important; }
   #formB textarea, #formB input[type=text] {
