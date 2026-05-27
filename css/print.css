@@ -201,7 +201,7 @@
     background: transparent !important;
     box-shadow: none !important;
     resize: none !important;
-    overflow: visible !important;
+    overflow: hidden !important;
     font-family: 'Times New Roman', Times, serif !important;
     font-size: 10.5pt !important;
     color: #111 !important;
@@ -245,7 +245,7 @@
   #formB textarea, #formB input[type=text] {
     border: none !important; background: transparent !important;
     outline: none !important; color: #111 !important;
-    resize: none !important; overflow: visible !important;
+    resize: none !important; overflow: hidden !important;
   }
   #formB textarea::placeholder, #formB input::placeholder { color: transparent !important; }
   #formB .b-table { display: table !important; }
@@ -258,7 +258,7 @@
     position: static !important;
     display: block !important;
     width: 100% !important;
-    overflow: visible !important;
+    overflow: hidden !important;
   }
   #formB .hh-table { display: table !important; }
   #formB .hh-table thead { display: table-header-group !important; }
