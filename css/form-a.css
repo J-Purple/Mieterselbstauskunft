@@ -1,0 +1,68 @@
+/* ── Table ── */
+.info-table { width: 100%; border-collapse: collapse; margin: 14px 0 18px 0; font-size: 10pt; }
+.info-table th, .info-table td { border: 1px solid #111; padding: 3px 6px; vertical-align: middle; }
+.info-table th { font-weight: bold; text-align: center; }
+.info-table td:first-child { min-width: 145px; }
+.info-table td:not(:first-child) { min-width: 120px; height: 22px; }
+.info-table td input {
+  width: 100%; border: none; outline: none;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 10pt; background: transparent; color: #111;
+}
+.info-table td input::placeholder { color: #bbb; font-style: italic; font-size: 9pt; }
+
+.person-block { margin-bottom: 20px; }
+.person-title { font-weight: bold; text-decoration: underline; margin-bottom: 6px; }
+
+.question-block { margin-bottom: 16px; }
+.question-text { margin-bottom: 3px; font-size: 11pt; }
+.question-en { font-size: 9pt; color: #888; font-style: italic; margin-bottom: 5px; font-family: sans-serif; }
+
+/* ── Yes/No ── */
+.yesno-row { display: flex; gap: 40px; margin-bottom: 4px; margin-left: 14px; }
+.yesno-option { display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 11pt; }
+.yesno-option input[type=radio] { position: absolute; opacity: 0; width: 0; height: 0; }
+.radio-dot {
+  width: 13px; height: 13px; border: 1.5px solid #111; border-radius: 50%;
+  display: inline-block; flex-shrink: 0; transition: background 0.15s;
+}
+.yesno-option input[type=radio]:checked + .radio-dot { background: #111; }
+
+/* ── Follow-up ── */
+.follow-up { margin-top: 5px; display: flex; align-items: flex-end; gap: 4px; }
+.follow-up-line { flex: 1; border-bottom: 1px solid #111; height: 22px; position: relative; }
+.follow-up-line input {
+  position: absolute; bottom: 1px; left: 0; width: 100%;
+  border: none; outline: none;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 10pt; background: transparent; color: #111;
+}
+.follow-up-line input::placeholder { color: #bbb; font-style: italic; font-size: 9pt; }
+.follow-up-second-line { width: 60%; border-bottom: 1px solid #111; height: 18px; margin-top: 6px; }
+
+/* ── Declarations ── */
+.declarations { margin: 18px 0 14px 0; }
+.declaration-item { display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start; }
+.decl-dot {
+  width: 13px; height: 13px; border: 1.5px solid #111; border-radius: 50%;
+  display: inline-block; flex-shrink: 0; margin-top: 3px;
+  cursor: pointer; transition: background 0.15s;
+}
+.decl-dot:hover { background: #666; }
+.decl-dot.checked { background: #111; }
+
+/* ── Signature ── */
+.signature-row { display: flex; gap: 24px; margin-top: 32px; align-items: flex-end; }
+.sig-field { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.sig-line { border-bottom: 1px solid #111; height: 24px; position: relative; }
+.sig-line input {
+  position: absolute; bottom: 1px; left: 0; width: 100%;
+  border: none; outline: none;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 10pt; background: transparent; color: #111;
+}
+.sig-label { font-size: 9pt; }
+
+.section-divider { border: none; border-top: 1px solid #555; margin: 18px 0 14px 0; }
+.note-text { font-size: 10pt; margin-bottom: 12px; }
+.interested-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 4px; margin-bottom: 12px; }

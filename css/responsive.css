@@ -1,0 +1,298 @@
+/* ── RESPONSIVE SCREEN STYLES ── */
+@media screen {
+  body { padding: 12px; }
+
+  .page {
+    padding: clamp(16px, 4vw, 2cm);
+    margin-bottom: 20px;
+  }
+
+  /* Mobile: stack field rows vertically */
+  @media (max-width: 600px) {
+    body { padding: 8px; font-size: 10pt; }
+
+    h1 { font-size: 13pt; margin-bottom: 14px; }
+
+    .field-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+    }
+    .field-label { font-size: 10pt; color: #555; }
+    .field-line {
+      width: 100%;
+      flex: none;
+      border: none;
+      border-bottom: 1.5px solid #aaa;
+      border-radius: 0;
+      height: 30px;
+      background: #fafafa;
+    }
+    .field-line input {
+      font-size: 11pt;
+      padding: 0 4px;
+      height: 100%;
+    }
+
+    .interested-row {
+      flex-direction: column;
+      gap: 8px;
+    }
+    .interested-row .field-line { width: 100% !important; min-width: unset !important; }
+
+    /* Table: convert to card layout on small screens */
+    .info-table, .info-table thead, .info-table tbody,
+    .info-table th, .info-table td, .info-table tr {
+      display: block;
+    }
+    .info-table thead { display: none; }
+    .info-table tr {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      padding: 8px;
+      background: #fafafa;
+    }
+    .info-table td {
+      border: none;
+      padding: 4px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 10pt;
+    }
+    .info-table td::before {
+      content: attr(data-label);
+      font-size: 9pt;
+      color: #888;
+      font-style: italic;
+    }
+    .info-table td input {
+      border-bottom: 1px solid #ccc;
+      padding: 2px 0;
+      font-size: 11pt;
+      background: transparent;
+    }
+
+    /* Yes/No layout */
+    .yesno-row { gap: 24px; margin-left: 0; }
+
+    /* Follow-up */
+    .follow-up { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .follow-up-line { width: 100%; }
+
+    /* Signature */
+    .signature-row { flex-direction: column; gap: 20px; }
+    .sig-field { width: 100%; }
+
+    /* Person blocks */
+    .person-title { font-size: 11pt; }
+  }
+
+  /* Tablet: slightly tighter */
+  @media (min-width: 601px) and (max-width: 860px) {
+    .info-table { font-size: 9pt; }
+    .info-table td, .info-table th { padding: 3px 4px; }
+    .field-line input { font-size: 10pt; }
+  }
+}
+
+/* Auto-growing multiline fields */
+.field-line, .follow-up-line, .sig-line {
+  height: auto;
+  min-height: 24px;
+}
+.field-line textarea,
+.follow-up-line textarea,
+.sig-line textarea,
+.info-table td textarea {
+  width: 100%;
+  min-height: 1.45em;
+  resize: none;
+  overflow: hidden;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: inherit;
+  line-height: 1.3;
+  padding: 0 2px 2px 2px;
+  color: #111;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  display: block;
+}
+.field-line textarea::placeholder,
+.follow-up-line textarea::placeholder,
+.sig-line textarea::placeholder,
+.info-table td textarea::placeholder {
+  color: #aaa;
+  font-style: italic;
+  font-size: 9pt;
+}
+.info-table td {
+  vertical-align: top;
+  height: auto !important;
+}
+.info-table td textarea {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+@media screen and (max-width: 600px) {
+  body {
+    padding: 12px;
+    line-height: 1.6;
+  }
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    gap: 10px;
+    padding: 12px;
+  }
+  .toolbar-right {
+    width: 100%;
+    margin-left: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .btn-tool, .btn-primary-tool {
+    width: 100%;
+    min-height: 42px;
+  }
+  .page {
+    padding: 22px 16px;
+    margin-bottom: 24px;
+  }
+  h1 {
+    margin-bottom: 18px;
+  }
+  p {
+    margin-bottom: 14px;
+  }
+  .field-row {
+    margin-bottom: 16px !important;
+  }
+  .field-label {
+    margin-bottom: 4px;
+  }
+  .field-line {
+    min-height: 34px;
+    padding-top: 2px;
+  }
+  .field-line textarea {
+    font-size: 11pt;
+    line-height: 1.35;
+  }
+  .person-block {
+    margin-bottom: 28px;
+  }
+  .person-title {
+    margin-bottom: 10px;
+  }
+  .question-block {
+    margin-bottom: 24px;
+  }
+  .question-text {
+    margin-bottom: 6px;
+    line-height: 1.45;
+  }
+  .question-en {
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  .yesno-row {
+    margin: 8px 0 8px 0 !important;
+    gap: 28px !important;
+  }
+  .follow-up {
+    margin-top: 10px;
+    gap: 8px;
+  }
+  .follow-up-line {
+    width: 100%;
+    min-height: 30px;
+  }
+  .follow-up-second-line {
+    width: 100% !important;
+    margin-top: 10px;
+  }
+  .section-divider {
+    margin: 22px 0 18px 0;
+  }
+  .declaration-item {
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .signature-row {
+    margin-top: 28px;
+    gap: 18px;
+  }
+
+  /* Better mobile table cards */
+  .info-table {
+    margin: 18px 0 24px 0;
+  }
+  .info-table, .info-table thead, .info-table tbody, .info-table tr, .info-table th, .info-table td {
+    display: block;
+  }
+  .info-table thead {
+    display: none;
+  }
+  .info-table tr {
+    background: #fafafa;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .info-table td {
+    border: none;
+    min-width: 0 !important;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+  .info-table td:first-child {
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  .info-table td[data-label] {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid #e5e7eb;
+  }
+  .info-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 9pt;
+    color: #7a7a7a;
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+  .info-table td textarea {
+    min-height: 2.6em;
+    line-height: 1.35;
+    padding: 0 0 2px 0;
+    font-size: 11pt;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .tab-btn { font-size: 11px; padding: 10px 8px; }
+  #formB .b-table thead { display: none; }
+  #formB .b-table, #formB .b-table tbody,
+  #formB .b-table tr, #formB .b-table td { display: block; }
+  #formB .b-table tr {
+    border: 1px solid #e0e0e0; border-radius: 8px;
+    margin-bottom: 10px; padding: 10px; background: #fafafa;
+  }
+  #formB .b-table td { border: none; padding: 4px 0; }
+  #formB .b-table td::before {
+    content: attr(data-label);
+    display: block; font-size: 9pt; color: #888; font-style: italic; margin-bottom: 4px;
+  }
+  #formB .b-sig-row { flex-direction: column; gap: 20px; }
+}

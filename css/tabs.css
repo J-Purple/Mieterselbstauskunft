@@ -1,0 +1,33 @@
+/* ══════════════════════════════════════
+   TAB SWITCHER
+══════════════════════════════════════ */
+.tab-bar {
+  max-width: 210mm;
+  margin: 0 auto 0 auto;
+  display: flex;
+  font-family: sans-serif;
+}
+.tab-btn {
+  flex: 1;
+  padding: 11px 16px;
+  border: none;
+  background: #2e2e2e;
+  color: #aaa;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.18s;
+  letter-spacing: 0.01em;
+}
+.tab-btn:first-child { border-radius: 7px 0 0 0; }
+.tab-btn:last-child  { border-radius: 0 7px 0 0; }
+.tab-btn.active {
+  background: #1e1e1e;
+  color: #fff;
+  border-bottom: 3px solid #01696f;
+}
+.tab-btn:hover:not(.active) { background: #383838; color: #ddd; }
+
+.form-panel { display: none; }
+.form-panel.active { display: block; }

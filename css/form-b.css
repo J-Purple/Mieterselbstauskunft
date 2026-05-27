@@ -1,0 +1,243 @@
+/* ══ VERSION B specific styles ══ */
+
+/* Base page font exactly like PDF */
+#formB .page {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 11pt;
+  line-height: 1.45;
+  color: #111;
+}
+#formB h1 {
+  font-size: 20pt;
+  font-weight: bold;
+  margin-bottom: 24px;
+  text-decoration: none;
+}
+
+/* ── Property section ── */
+#formB .b-section-label {
+  font-weight: bold;
+  font-size: 11pt;
+  margin-bottom: 14px;
+}
+#formB .b-full-line {
+  border-bottom: 1.5px solid #111;
+  margin-bottom: 10px;
+  min-height: 22px;
+  position: relative;
+}
+#formB .b-full-line textarea {
+  position: absolute; bottom: 1px; left: 0;
+  width: 100%; border: none; outline: none;
+  background: transparent; resize: none; overflow: hidden;
+  font-family: inherit; font-size: 10.5pt; color: #111;
+  padding: 0 2px; min-height: 1.3em;
+}
+#formB .b-full-line textarea::placeholder { color: #bbb; font-style: italic; font-size: 9pt; }
+
+/* Bold label + short underline field on same row */
+#formB .b-prop-row {
+  display: flex; align-items: flex-end; gap: 10px;
+  margin-bottom: 8px;
+}
+#formB .b-prop-row .b-prop-label {
+  font-weight: bold; font-size: 11pt; white-space: nowrap; flex-shrink: 0;
+}
+#formB .b-prop-row .b-prop-field {
+  border-bottom: 1.5px solid #111; flex: 0 0 160px;
+  min-height: 20px; position: relative;
+}
+#formB .b-prop-row .b-prop-field textarea {
+  position: absolute; bottom: 1px; left: 0;
+  width: 100%; border: none; outline: none;
+  background: transparent; resize: none; overflow: hidden;
+  font-family: inherit; font-size: 10.5pt; color: #111;
+  padding: 0 2px; min-height: 1.3em;
+}
+#formB .b-prop-row .b-prop-field textarea::placeholder { color: #bbb; font-style: italic; font-size: 9pt; }
+
+/* ── Main 2-column applicant table ── */
+#formB .b-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  font-size: 10.5pt;
+  table-layout: fixed;
+}
+#formB .b-table th {
+  border: 1.5px solid #111;
+  padding: 5px 8px;
+  font-weight: bold;
+  text-align: center;
+  background: transparent;
+  width: 50%;
+}
+#formB .b-table td {
+  border: 1.5px solid #111;
+  padding: 5px 7px;
+  vertical-align: top;
+  height: auto;
+}
+#formB .b-table td.row-label {
+  font-size: 9.5pt;
+  color: #333;
+  border: 1.5px solid #111;
+  width: auto;
+  vertical-align: middle;
+  padding: 4px 7px;
+}
+/* Two-column variant: no row-label, equal halves */
+#formB .b-table.two-col th,
+#formB .b-table.two-col td { width: 50%; }
+
+#formB .b-table td {
+  position: static;
+}
+#formB .b-table td textarea {
+  position: static !important;
+  display: block !important;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  resize: none;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: 10.5pt;
+  color: #111;
+  padding: 2px 2px 1px 2px;
+  min-height: 1.5em;
+  line-height: 1.4;
+  vertical-align: top;
+}
+#formB .b-table td textarea::placeholder { color: #bbb; font-style: italic; font-size: 9pt; }
+/* Row label (left col, grey text) */
+#formB .b-table td.lbl {
+  font-size: 9.5pt;
+  color: #444;
+  background: transparent;
+  border-right: 1.5px solid #111;
+  white-space: normal;
+  width: 34%;
+  padding: 5px 8px;
+  vertical-align: top;
+}
+
+/* ── Household table ── */
+#formB .hh-table {
+  width: 100%; border-collapse: collapse;
+  margin: 8px 0 18px 0; font-size: 10pt;
+}
+#formB .hh-table th, #formB .hh-table td {
+  border: 1.5px solid #111; padding: 4px 6px;
+  vertical-align: top; text-align: left;
+}
+#formB .hh-table th { font-weight: bold; text-align: center; }
+#formB .hh-table td { min-height: 26px; }
+#formB .hh-table td textarea {
+  position: static !important;
+  display: block !important;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  resize: none;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: 10pt;
+  color: #111;
+  padding: 2px 2px 1px 2px;
+  min-height: 1.5em;
+  line-height: 1.4;
+}
+
+/* ── Declaration section ── */
+#formB .decl-section h3 {
+  font-weight: bold; font-size: 11pt; margin: 18px 0 10px 0;
+}
+#formB .chk-item {
+  display: flex; gap: 9px; align-items: flex-start;
+  margin-bottom: 7px; font-size: 10.5pt; line-height: 1.45;
+}
+#formB .chk-box {
+  width: 13px; height: 13px;
+  border: 1.5px solid #111;
+  flex-shrink: 0; margin-top: 3px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background 0.12s;
+}
+#formB .chk-box.checked { background: #111; }
+#formB .chk-box.checked::after {
+  content: '✓'; color: #fff; font-size: 9px; line-height: 1;
+}
+/* Inline underline input within a sentence */
+#formB .b-inline {
+  display: inline-block; border-bottom: 1.5px solid #111;
+  min-width: 110px; height: 16px; position: relative;
+  vertical-align: bottom; margin: 0 2px;
+}
+#formB .b-inline input {
+  position: absolute; bottom: 0; left: 0; width: 100%;
+  border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 10.5pt; color: #111;
+  padding: 0 2px;
+}
+#formB .b-inline input::placeholder { color: #bbb; font-style: italic; font-size: 9pt; }
+/* Sub-indented checkbox row */
+#formB .chk-sub { margin-left: 22px; }
+
+/* Payment obligations row */
+#formB .pay-line {
+  display: flex; flex-wrap: wrap; align-items: flex-end;
+  gap: 4px; font-size: 10.5pt; line-height: 1.6;
+}
+#formB .pay-field {
+  border-bottom: 1.5px solid #111; min-width: 90px;
+  height: 18px; position: relative; display: inline-block;
+}
+#formB .pay-field input {
+  position: absolute; bottom: 0; left: 0; width: 100%;
+  border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 10.5pt; color: #111; padding: 0 2px;
+}
+#formB .pay-field input::placeholder { color: #bbb; font-style: italic; font-size: 9pt; }
+
+/* ── Signature block ── */
+#formB .b-sig-area { margin-top: 36px; }
+#formB .b-city-date-row {
+  display: flex; align-items: flex-end; gap: 8px;
+  margin-bottom: 32px; font-size: 10.5pt;
+}
+#formB .b-city-field {
+  flex: 0 0 200px; border-bottom: 1.5px solid #111;
+  height: 22px; position: relative;
+}
+#formB .b-city-field input {
+  position: absolute; bottom: 1px; left: 0; width: 100%;
+  border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 10.5pt; color: #111; padding: 0 2px;
+}
+#formB .b-city-field input::placeholder { color: #bbb; font-style: italic; font-size: 9pt; }
+#formB .b-date-field {
+  flex: 0 0 160px; border-bottom: 1.5px solid #111;
+  height: 22px; position: relative;
+}
+#formB .b-date-field input {
+  position: absolute; bottom: 1px; left: 0; width: 100%;
+  border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 10.5pt; color: #111; padding: 0 2px;
+}
+#formB .b-date-field input::placeholder { color: #bbb; font-style: italic; font-size: 9pt; }
+
+#formB .b-sig-pair {
+  display: flex; gap: 48px; margin-bottom: 6px;
+}
+#formB .b-sig-slot { flex: 1; }
+#formB .b-sig-line {
+  border-bottom: 1.5px solid #111;
+  height: 32px; margin-bottom: 4px;
+}
+#formB .b-sig-caption { font-size: 9.5pt; color: #444; }
+
+#formB .important-note { margin-top: 18px; font-size: 10.5pt; line-height: 1.5; }
+#formB .important-note strong { font-weight: bold; }

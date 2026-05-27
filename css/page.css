@@ -1,0 +1,23 @@
+/* ── Pages ── */
+.page {
+  background: white;
+  max-width: 210mm;
+  margin: 0 auto 30px auto;
+  padding: 2cm 2.2cm;
+  box-shadow: 0 2px 18px rgba(0,0,0,0.15);
+}
+
+h1 { font-size: 14pt; font-weight: bold; text-decoration: underline; margin-bottom: 18px; }
+
+.field-row { display: flex; align-items: flex-end; margin-bottom: 12px; gap: 6px; }
+.field-label { white-space: nowrap; font-size: 11pt; }
+.field-line { flex: 1; border-bottom: 1px solid #111; min-width: 80px; height: 22px; position: relative; }
+.field-line input {
+  position: absolute; bottom: 1px; left: 0;
+  width: 100%; border: none; outline: none;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 10.5pt; background: transparent; color: #111; padding: 0 2px;
+}
+.field-line input::placeholder { color: #aaa; font-style: italic; font-size: 9pt; }
+
+p { margin-bottom: 10px; font-size: 11pt; }
